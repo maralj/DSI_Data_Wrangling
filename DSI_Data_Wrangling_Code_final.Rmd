@@ -1,0 +1,60 @@
+---
+title: "DSI Data Wrangling Project"
+output: html_notebook
+---
+
+```{r}
+r <- refine_original
+brand <- giz$company
+
+# Converting all company names to lower case
+giz <- mutate(r, brand = tolower(brand), brand)
+
+#View(giz)
+
+#Cleaning up brand names
+all <- giz %>% 
+mutate(brand = ifelse(grepl("lips", brand), "philips", brand)) %>% 
+mutate(brand = ifelse(grepl("ak", brand), "akzo", brand)) %>% 
+mutate(brand = ifelse(grepl("uni", brand), "unilever", brand)) %>% 
+mutate(brand = ifelse(grepl("van", brand), "van houten", brand))
+
+#View(all)
+
+#Separating the product code and number
+split_prod <- cbind(all, read.table(tex = as.character(all$Product.code...number), sep = "-"))
+
+#View(split_prod)
+
+#Renaming the new product columns
+clean_prod <- rename(split_prod, product_code = V1, product_number = V2)
+
+#View(clean_prod)
+
+#Defining categories and creating a new column for them
+all_cat <- clean_prod%>% 
+mutate(category = ifelse(grepl("p", clean_prod$product_code), "Smartphone", category)) %>% 
+mutate(category = ifelse(grepl("v", clean_prod$product_code), "TV", category)) %>% 
+mutate(category = ifelse(grepl("x", clean_prod$product_code), "Laptop", category)) %>% 
+mutate(category = ifelse(grepl("q", clean_prod$product_code), "Tablet", category))
+
+#View(all_cat)
+
+#Merging the address fields and creating a new 'full_address' column for geocoding.
+df <- unite(all_cat, full_address, c(address, city, country), sep = ',', remove = FALSE)
+
+#View(df)
+
+#Creating dummy variables for each brand
+final_df <- df %>%
+mutate(company_philips = ifelse(grepl("philips", brand), 1, 0)) %>%
+mutate(company_akzo = ifelse(grepl("akzo", brand), 1, 0)) %>%
+mutate(company_unilever = ifelse(grepl("unilever", brand), 1, 0)) %>%
+mutate(company_van_houten = ifelse(grepl("van houten", brand), 1, 0))
+
+View(final_df)
+
+#Export as a csv file
+write.csv(final_df, "final_df.csv")
+
+```

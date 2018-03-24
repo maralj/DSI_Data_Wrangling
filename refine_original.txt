@@ -1,0 +1,134 @@
+refine_original
+
+# Creating a dataframe:
+ r <- as.data.frame((refine_original))
+ 
+ # giz is the new data frame
+ brand <- giz$company
+
+# Converting all to lower case
+
+giz <- mutate(r, brand = tolower(brand), brand)
+> View(low)
+
+
+
+
+
+> mutate(r, giz = ifelse(grepl("ak", giz), "akzo", giz ))
+
+
+#WORKINH YAY:
+
+mutate(giz, brand = ifelse(grepl("ak", brand), "akzo", brand )) 
+
+
+#All _ not working 
+
+all <- mutate(giz, brand = ifelse(grepl("lips", brand), "philips", brand))
+mutate(giz, brand = ifelse(grepl("ak", brand), "akzo", brand))
+mutate(giz, brand = ifelse(grepl("uni", brand), "unilever", brand))
+mutate(giz, brand = ifelse(grepl("van", brand), "van houten", brand))
+
+#working!
+
+all <- giz %>% 
+mutate(brand = ifelse(grepl("lips", brand), "philips", brand)) %>% 
+mutate(brand = ifelse(grepl("ak", brand), "akzo", brand)) %>% 
+mutate(brand = ifelse(grepl("uni", brand), "unilever", brand)) %>% 
+mutate(brand = ifelse(grepl("van", brand), "van houten", brand))
+> View(all)
+
+# split product name and code but it just splits the column so you can call the created columns. 
+
+new_df <-  within(giz, giz_sep <- data.frame(do.call('rbind', strsplit(as.character(giz$Product.code...number), '-', fixed = TRUE))))
+> str(new_df)
+
+#better way to create two new columns
+
+cbind(giz, read.table(tex = as.character(giz$Product.code...number), sep = "-"))
+
+#with all 
+
+renamed_all <- cbind(all, read.table(tex = as.character(all$Product.code...number), sep = "-"))
+
+
+# rename the newly created columns
+
+clean_prod <- rename(renamed_all, product_code = V1, product_number = V2)
+renamed_all
+
+#PROBLEM 3
+
+p = Smartphone
+v = TV
+x = Laptop
+q = Tablet
+
+for c in product_code
+if (c == p)
+category <- "Smaartphone"
+else
+(print("nope"))
+
+# working
+test_cat <- mutate(r, cat = ifelse(grepl("c", r$V1), "Smartphone", "nah")
++ )
+> test_cat
+
+#almost there - not working
+all_cat <- mutate(clean_prod, category = ifelse(grepl("p", clean_prod$product_code), "Smartphone", product_code)) %>% 
+ mutate(category = ifelse(grepl("v", clean_prod$product_code), "TV", product_code)) %>% 
+mutate(category = ifelse(grepl("x", clean_prod$product_code), "Laptop", product_code)) %>% 
+ mutate(category = ifelse(grepl("q", clean_prod$product_code), "Tablet", product_code))
+
+# PROBLEM # SOLVED - Working! Defining categories and creating a new column for them:
+ 
+all_cat <- clean_prod
+mutate( category = ifelse(grepl("p", clean_prod$product_code), "Smartphone", category)) %>% 
+mutate(category = ifelse(grepl("v", clean_prod$product_code), "TV", category)) %>% 
+mutate(category = ifelse(grepl("x", clean_prod$product_code), "Laptop", category)) %>% 
+mutate(category = ifelse(grepl("q", clean_prod$product_code), "Tablet", category))
+
+#withh all
+
+all_cat <- clean_prod%>% 
+mutate(category = ifelse(grepl("p", clean_prod$product_code), "Smartphone", category)) %>% 
+mutate(category = ifelse(grepl("v", clean_prod$product_code), "TV", category)) %>% 
+mutate(category = ifelse(grepl("x", clean_prod$product_code), "Laptop", category)) %>% 
+mutate(category = ifelse(grepl("q", clean_prod$product_code), "Tablet", category))
+
+
+ # PROBLEM 4
+ 
+ full_address >- all_cat %>%
+   unite(BLOCK_ID, STATE, COUNTY, TRACT, BLOCK, sep = "", remove = FALSE)
+   
+# defult sep
+
+   df <- unite(all_cat, full_address, c(address, city, country), remove = FALSE)
+  > str(df)
+  
+# ',' as the seperator
+
+df <- unite(all_cat, full_address, c(address, city, country), sep = ',', remove = FALSE)
+
+#dummy variables
+
+final_df <- df %>%
+mutate(company_philips = ifelse(grepl("philips", brand), 1, 0)) %>%
+mutate(company_akzo = ifelse(grepl("akzo", brand), 1, 0)) %>%
+mutate(company_unilever = ifelse(grepl("unilever", brand), 1, 0)) %>%
+mutate(company_van_houten = ifelse(grepl("van houten", brand), 1, 0))
+
+export 
+> write.csv(dataset, "filename.csv")
+> write.csv(new_df, "filename.csv", row.names = FALSE, col.names = TRUE)
+
+
+
+write.table(data.frame(subset(dd,select=-c(Month)),unclass(dd$Month)))
+
+View()
+
+
